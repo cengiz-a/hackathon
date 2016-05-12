@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Hackarthon 2016</title>
+	<script src="./js/phaser.min.js"></script>
+</head>
+<body>
+<script>
+var game = new Phaser.Game(1280, 960, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+var cursor;
+var tiledElephant;
+
+function preload() {
+	// Load tiled elephant file
+	game.load.image('elephant', 'assets/sprites/elephant.png');
+}
+
+function create() {
+	cursors = game.input.keyboard.createCursorKeys();
+
+	// Make it tiled
+	tiledElephant = game.add.tileSprite(0, 0, 512, 512, 'elephant');
+}
+
+function update() {
+	if(cursor.left.isDown) {
+		// Move left
+
+	} else if(cursor.right.isDown) {
+		// Move right
+
+	}
+}
+
+</script>
+</body>
+</html>
