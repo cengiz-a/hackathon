@@ -7,8 +7,61 @@
 <body>
 <script>
 var game = new Phaser.Game(1280, 960, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+
 var cursor;
 var tiledElephant;
+var count = 0;
+var life = 100;
+
+var lifeDecreaseTimer;
+
+function updateUI() {
+
+}
+
+function updateElephant() {
+	if(cursor.left.isDown) {
+		// Move left
+		tiledElephant.x -= 8;
+
+		count += 20;
+		if(count >= 100) {
+			tiledElephant.tilePosition.x -= 251;
+			count = 0;
+		}
+	} else if(cursor.right.isDown) {
+		// Move right
+		tiledElephant.x += 8;
+
+		count += 20;
+		if(count >= 100) {
+			tiledElephant.tilePosition.x += 251;	
+			count = 0;
+		}
+	}
+	if(cursor.up.isDown) {
+		// Move up
+		tiledElephant.y -= 8;
+
+		count += 20;
+		if(count >= 100) {
+			tiledElephant.tilePosition.x += 251;
+			count = 0;
+		}
+
+	} else if(cursor.down.isDown) {
+		// Move up
+		tiledElephant.y += 8;
+
+		count += 20;
+		if(count >= 100) {
+			tiledElephant.tilePosition.x += 251;
+			count = 0;
+		}
+	}
+
+
+}
 
 function preload() {
 	// Load tiled elephant file
@@ -16,20 +69,32 @@ function preload() {
 }
 
 function create() {
-	cursors = game.input.keyboard.createCursorKeys();
+	// cursor
+	cursor = game.input.keyboard.createCursorKeys();
 
 	// Make it tiled
-	tiledElephant = game.add.tileSprite(0, 0, 512, 512, 'elephant');
+	tiledElephant = game.add.tileSprite(0, 0, 250, 210, 'elephant');
+
+	game.time.events.loop(Phaser.Timer.SECOND, updateLife, this);
+
+}
+
+function updateLife() {
+	life--;
+	
+	if(life <= 0) {
+		// Elif ist tod :(
+	}
 }
 
 function update() {
-	if(cursor.left.isDown) {
-		// Move left
+	updateElephant();
+	updateUI();
+	
+}
 
-	} else if(cursor.right.isDown) {
-		// Move right
+function render() {
 
-	}
 }
 
 </script>
