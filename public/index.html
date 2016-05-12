@@ -20,21 +20,41 @@ var lifeDecreaseTimer;
 var lifeText;
 var style = { font: "bold 32px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
 
-var testRect = new Phaser.Rectangle(0,0, 20, 20);
+var rectStage1 = new Phaser.Rectangle(-640, 0, 20, 20);
+var rectStage2 = new Phaser.Rectangle(-1694, 0, 20, 20);
+var rectStage3 = new Phaser.Rectangle(-2070, 0, 20, 20);
+var rectStage4 = new Phaser.Rectangle(-2982, 0, 20, 20);
 
 function updateBackground() {
 	if(cursor.left.isDown) {
 		// Move left
 		tiledCity.tilePosition.x += 8;
-
 	} else if(cursor.right.isDown) {
 		// Move right
 		tiledCity.tilePosition.x -= 8;
-		if(tiledCity.tilePosition.x < 0) {
-			tiledCity.tilePosition.x = 0;
-		}
 	}
-	console.log(tiledCity.tilePosition.x);
+
+	if(rectStage1.contains(tiledCity.tilePosition.x, tiledCity.tilePosition.y)) {
+		console.log("level1");
+
+		
+
+
+	} else if(rectStage2.contains(tiledCity.tilePosition.x, tiledCity.tilePosition.y)) {
+		console.log("level2");
+
+
+
+	} else if(rectStage3.contains(tiledCity.tilePosition.x, tiledCity.tilePosition.y)) {
+		console.log("level3");
+
+
+
+	} else if(rectStage4.contains(tiledCity.tilePosition.x, tiledCity.tilePosition.y)) {
+		console.log("level4");
+
+
+	}
 }
 
 function updateElephant() {
@@ -81,7 +101,6 @@ function create() {
 	// Make a loop to update elif's life
 	game.time.events.loop(Phaser.Timer.SECOND, updateLife, this);
 
-	
 	lifeText = game.add.text(1280 / 2, 10, "Life: " + life, style);
 }
 
@@ -90,7 +109,7 @@ function updateLife() {
 	lifeText.setText("Life: " + life);
 	if(life <= 0) {
 		// Elif ist tod :(
-		lifeText.setText("You died, biaaaaaaaaaatch");
+		lifeText.setText("You died, biaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaatch");
 	}
 }
 
