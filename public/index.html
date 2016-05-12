@@ -20,15 +20,21 @@ var lifeDecreaseTimer;
 var lifeText;
 var style = { font: "bold 32px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
 
+var testRect = new Phaser.Rectangle(0,0, 20, 20);
 
 function updateBackground() {
 	if(cursor.left.isDown) {
 		// Move left
 		tiledCity.tilePosition.x += 8;
+
 	} else if(cursor.right.isDown) {
 		// Move right
 		tiledCity.tilePosition.x -= 8;
+		if(tiledCity.tilePosition.x < 0) {
+			tiledCity.tilePosition.x = 0;
+		}
 	}
+	console.log(tiledCity.tilePosition.x);
 }
 
 function updateElephant() {
@@ -47,6 +53,10 @@ function updateElephant() {
 			count = 0;
 		}
 	}
+
+	if(cursor.space.isDown) {
+		console.log(new Phaser.Rectangle(tiledCity.tilePosition.x, tiledCity.tilePosition.y));
+	}
 }
 
 function preload() {
@@ -57,7 +67,12 @@ function preload() {
 
 function create() {
 	// cursor
-	cursor = game.input.keyboard.addKeys({ 'up': Phaser.KeyCode.UP, 'down': Phaser.KeyCode.LEFT, 'left': Phaser.KeyCode.LEFT, 'right': Phaser.KeyCode.RIGHT });
+	cursor = game.input.keyboard.addKeys({ 
+		'up': Phaser.KeyCode.UP, 
+		'down': Phaser.KeyCode.DOWN, 
+		'left': Phaser.KeyCode.LEFT, 
+		'right': Phaser.KeyCode.RIGHT, 
+		'space': Phaser.KeyCode.SPACEBAR });
 
 	// Make it tiled
 	tiledCity = game.add.tileSprite(0, 0, 1280, 960, 'background');
