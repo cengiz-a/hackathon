@@ -20,10 +20,22 @@ var lifeDecreaseTimer;
 var lifeText;
 var style = { font: "bold 32px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
 
-var rectStage1 = new Phaser.Rectangle(-640, 0, 20, 20);
-var rectStage2 = new Phaser.Rectangle(-1694, 0, 20, 20);
-var rectStage3 = new Phaser.Rectangle(-2070, 0, 20, 20);
-var rectStage4 = new Phaser.Rectangle(-2982, 0, 20, 20);
+var rectStage1 = new Phaser.Rectangle(-660, 0, 100, 20);
+var rectStage2 = new Phaser.Rectangle(-1700, 0, 100, 20);
+var rectStage3 = new Phaser.Rectangle(-2070, 0, 100, 20);
+var rectStage4 = new Phaser.Rectangle(-2982, 0, 100, 20);
+
+var state = 0; // 0 == Begin, 1 == dialog-mull-1 && face-imbiss, 2 == jaodernein im bezug auf mull, 3 == dialog-bestellung && face-bestellung, 4 == jaodernein im bezug auf imbiss
+
+var dialogBestellung;
+var dialogMull1;
+var dialog;
+var minigameBg1;
+var mull1;
+var mull2;
+var faceBestellung;
+var faceImbiss;
+var jaodernein;
 
 function updateBackground() {
 	if(cursor.left.isDown) {
@@ -35,24 +47,21 @@ function updateBackground() {
 	}
 
 	if(rectStage1.contains(tiledCity.tilePosition.x, tiledCity.tilePosition.y)) {
-		console.log("level1");
-
-		
+		state = 1;
 
 	} else if(rectStage2.contains(tiledCity.tilePosition.x, tiledCity.tilePosition.y)) {
-		console.log("level2");
-
-
+		state = 3;
 
 	} else if(rectStage3.contains(tiledCity.tilePosition.x, tiledCity.tilePosition.y)) {
-		console.log("level3");
-
-
+		game.state.start('minigame1');
 
 	} else if(rectStage4.contains(tiledCity.tilePosition.x, tiledCity.tilePosition.y)) {
 		console.log("level4");
 
-
+	} else {
+		if(state != 0) {
+			state = -1;
+		}
 	}
 }
 
@@ -74,7 +83,14 @@ function updateElephant() {
 	}
 
 	if(cursor.space.isDown) {
-		console.log(new Phaser.Rectangle(tiledCity.tilePosition.x, tiledCity.tilePosition.y));
+		if(state == 0) {
+			state = -1;
+		}
+
+		if(state == 1) {
+			state = 2;
+		}
+
 	}
 }
 
@@ -82,6 +98,15 @@ function preload() {
 	// Load tiled elephant file
 	game.load.image('elephant', 'assets/sprites/elephant.png');
 	game.load.image('background', 'assets/sprites/city.png');
+	game.load.image('dialog-bestellung', 'assets/sprites/dialog-bestellung.png');
+	game.load.image('dialog-mull-1', 'assets/sprites/dialog-mull-1.png');
+	game.load.image('dialog', 'assets/sprites/dialog.png');
+	game.load.image('minigame-1-bg', 'assets/sprites/minigame-1-bg.png');
+	game.load.image('mull1', 'assets/sprites/mull1.png');
+	game.load.image('mull2', 'assets/sprites/mull2.png');
+	game.load.image('face-bestellung', 'assets/sprites/face-bestellung.png');
+	game.load.image('face-imbiss', 'assets/sprites/face-imbiss.png');
+	game.load.image('jaodernein', 'assets/sprites/jaodernein.png');
 }
 
 function create() {
@@ -97,18 +122,65 @@ function create() {
 	tiledCity = game.add.tileSprite(0, 0, 1280, 960, 'background');
 	tiledElephant = game.add.tileSprite(300, 500, 250, 210, 'elephant');
 
+	// state == 0
+	dialog = game.add.sprite(100, 100, 'dialog');
+
+	// state == 1
+	dialogMull1 = game.add.sprite(200, 0, 'dialog-mull-1');
+	faceImbiss = game.add.sprite(50, 600, 'face-imbiss');
+
+	// state == 3
+	dialogBestellung = game.add.sprite(200, 0, 'dialog-bestellung');
+	faceBestellung = game.add.sprite(50, 600, 'face-bestellung');
+
+	// Other
+	jaodernein = game.add.sprite(700, 500, 'jaodernein');
+
 	// Make a loop to update elif's life
 	game.time.events.loop(Phaser.Timer.SECOND, updateLife, this);
 
 	lifeText = game.add.text(1280 / 2, 10, "Life: " + life, style);
+
+	game.state.add('gameover', { preload: preloadgameover, create: creategameover, update: updategameover });
+	game.state.add('minigame1', { preload: preloadMinigame1, create: createMinigame1, update: updateMinigame1 });
+}
+
+function preloadgameover() {
+	
+}
+
+function creategameover() {
+	console.log('yooo2');
+}
+
+function updategameover() {
+	console.log('yooo3');
+
+}
+
+function preloadMinigame1() {
+	console.log('yooo');
+}
+
+function createMinigame1() {
+	console.log('yooo2');
+}
+
+function updateMinigame1() {
+	console.log('yooo3');
 }
 
 function updateLife() {
-	life-=10;
+
+	if(state > 0) {
+		life-=10;
+	}
+	
 	lifeText.setText("Life: " + life);
 	if(life <= 0) {
 		// Elif ist tod :(
 		lifeText.setText("You died, biatch");
+		life = 0;
 	}
 }
 
@@ -116,9 +188,33 @@ function update() {
 	updateElephant();
 	updateBackground();
 	
-}
+	if(state == 0) {
+		dialog.renderable = true;
+	} else {
+		dialog.renderable = false;
+	}
 
-function render() {
+	if(state == 1) {
+		dialogMull1.renderable = true;
+		faceImbiss.renderable = true;
+		jaodernein.renderable = true;
+
+	} else {
+		dialogMull1.renderable = false;
+		faceImbiss.renderable = false;
+		jaodernein.renderable = false;
+	}
+
+	if(state == 3) {
+		dialogBestellung.renderable = true;
+		faceBestellung.renderable = true;
+		jaodernein.renderable = true;
+	} else {
+		dialogBestellung.renderable = false;
+		faceBestellung.renderable = false;
+		jaodernein.renderable = false;
+	}
+
 
 }
 
