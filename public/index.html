@@ -37,6 +37,22 @@ var faceBestellung;
 var faceImbiss;
 var jaodernein;
 
+var minigame1bg;
+
+function preloadMinigame1() {
+	game.load.image('mull-bg', 'assets/sprites/minigame2-bg.png');
+}
+
+function createMinigame1() {
+	minigame1bg = game.add.sprite(0, 0, 'minigame2-bg');
+}
+
+function updateMinigame1() {
+	//console.log('yooo3');
+}
+
+
+
 function updateBackground() {
 	if(cursor.left.isDown) {
 		// Move left
@@ -156,18 +172,6 @@ function creategameover() {
 function updategameover() {
 	console.log('yooo3');
 
-}
-
-function preloadMinigame1() {
-	console.log('yooo');
-}
-
-function createMinigame1() {
-	console.log('yooo2');
-}
-
-function updateMinigame1() {
-	console.log('yooo3');
 }
 
 function updateLife() {
