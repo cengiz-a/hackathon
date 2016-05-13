@@ -258,7 +258,7 @@ function updateElephant() {
 			// start minigame 1
 			mainBgScrollSave = tiledCity.tilePosition.x;
 			game.state.start('minigame1');
-		} else if(state == 3 && tiledElephant.renderable == true) {
+		} else if(state == 3 && tiledElephant.renderable == true && life > 50) {
 			// Ausbruch
 			tiledElephant.renderable = false;
 			tiledCity.setTexture(cityAusbruch.texture);
@@ -285,7 +285,6 @@ function preload() {
 	game.load.image('face-imbiss', 'assets/sprites/face-imbiss.png');
 	game.load.image('dialog-durchbruch', 'assets/sprites/dialog-durchbruch.png');
 	game.load.image('city-ausbruch', 'assets/sprites/city-ausbruch.png');
-
 }
 
 function create() {
@@ -298,14 +297,13 @@ function create() {
 		'space': Phaser.KeyCode.SPACEBAR,
 		'y': Phaser.KeyCode.Y });
 
+	//console.log(game.sound)
 	// state == 3
 	cityAusbruch = game.add.tileSprite(0, 0, 1280, 960, 'city-ausbruch');
 
 	// Make it tiled
 	tiledCity = game.add.tileSprite(0, 0, 1280, 960, 'background');
 	tiledCity.tilePosition.x += mainBgScrollSave;
-
-	
 
 	tiledElephant = game.add.tileSprite(startX, startY, 250, 210, 'elephant');
 
@@ -354,12 +352,14 @@ function updatehappyend() {
 
 }
 
+var gameover;
+
 function preloadgameover() {
-	
+	game.load.image('gameover', 'assets/sprites/gameover.png');
 }
 
 function creategameover() {
-	
+	gameover = game.add.sprite(0, 0, 'gameover');
 }
 
 function updategameover() {
@@ -376,7 +376,8 @@ function updateLife() {
 	lifeText.setText("Power: " + life);
 	if(life <= 0) {
 		// Elif ist tod :(
-		lifeText.setText("You died, biatch");
+		lifeText.setText("Game Over");
+		game.state.start('gameover');
 		life = 0;
 	}
 }
