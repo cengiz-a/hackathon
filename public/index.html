@@ -30,7 +30,10 @@ var rectStage2 = new Phaser.Rectangle(-1700, 0, 100, 20);
 var rectStage3 = new Phaser.Rectangle(-2070, 0, 100, 20);
 var rectStage4 = new Phaser.Rectangle(-2982, 0, 100, 20);
 
-var state = 0; // 0 == Begin, 1 == dialog-mull-1 && face-imbiss, 2 == jaodernein im bezug auf mull, 3 == dialog-bestellung && face-bestellung, 4 == jaodernein im bezug auf imbiss
+
+var recthappyEnd = new Phaser.Rectangle(-2500, 0, 100, 20);
+
+var state = 0; // 0 == Begin, 1 == dialog-mull-1 && face-imbiss, 2 == dialog-bestellung && face-bestellung, 3 == ausbruch
 
 var dialogBestellung;
 var dialogMull1;
@@ -41,6 +44,10 @@ var mull2;
 var faceBestellung;
 var faceImbiss;
 var jaodernein;
+
+var dialogDurchbruch;
+var cityAusbruch;
+
 
 var minigame1bg;
 
@@ -104,7 +111,7 @@ function createMinigame1() {
 	stateMul1 = 0;
 	stateMul2 = 0;
 
-	lifeText = game.add.text(1280 / 2, 10, "Power: " + life, style);
+	lifeText = game.add.text(100, 10, "Power: " + life, style);
 	game.time.events.loop(Phaser.Timer.SECOND, updateLife, this);
 }
 
@@ -206,13 +213,15 @@ function updateBackground() {
 		state = 1;
 
 	} else if(rectStage2.contains(tiledCity.tilePosition.x, tiledCity.tilePosition.y)) {
-		state = 3;
+		state = 2;
 
 	} else if(rectStage3.contains(tiledCity.tilePosition.x, tiledCity.tilePosition.y)) {
 		
 
 	} else if(rectStage4.contains(tiledCity.tilePosition.x, tiledCity.tilePosition.y)) {
 		//console.log("level4");
+	} else if(recthappyEnd.contains(tiledCity.tilePosition.x, tiledCity.tilePosition.y)) {
+		state = 3;
 	} else {
 		if(state != 0) {
 			state = -1;
@@ -249,8 +258,17 @@ function updateElephant() {
 			// start minigame 1
 			mainBgScrollSave = tiledCity.tilePosition.x;
 			game.state.start('minigame1');
+		} else if(state == 3 && tiledElephant.renderable == true) {
+			// Ausbruch
+			tiledElephant.renderable = false;
+			tiledCity.setTexture(cityAusbruch.texture);
+			game.time.events.add(Phaser.Timer.SECOND * 2, happyend, this);
 		}
 	}
+}
+
+function happyend() {
+	game.state.start('happyend');
 }
 
 function preload() {
@@ -265,6 +283,9 @@ function preload() {
 	game.load.image('mull2', 'assets/sprites/mull2.png');
 	game.load.image('face-bestellung', 'assets/sprites/face-bestellung.png');
 	game.load.image('face-imbiss', 'assets/sprites/face-imbiss.png');
+	game.load.image('dialog-durchbruch', 'assets/sprites/dialog-durchbruch.png');
+	game.load.image('city-ausbruch', 'assets/sprites/city-ausbruch.png');
+
 }
 
 function create() {
@@ -277,29 +298,60 @@ function create() {
 		'space': Phaser.KeyCode.SPACEBAR,
 		'y': Phaser.KeyCode.Y });
 
+	// state == 3
+	cityAusbruch = game.add.tileSprite(0, 0, 1280, 960, 'city-ausbruch');
+
 	// Make it tiled
 	tiledCity = game.add.tileSprite(0, 0, 1280, 960, 'background');
 	tiledCity.tilePosition.x += mainBgScrollSave;
+
+	
+
 	tiledElephant = game.add.tileSprite(startX, startY, 250, 210, 'elephant');
 
 	// state == 0
 	dialog = game.add.sprite(100, 100, 'dialog');
 
 	// state == 1
-	dialogMull1 = game.add.sprite(200, 0, 'dialog-mull-1');
-	faceImbiss = game.add.sprite(50, 600, 'face-imbiss');
+	dialogMull1 = game.add.sprite(750, 0, 'dialog-mull-1');
+	faceImbiss = game.add.sprite(500, 250, 'face-imbiss');
+	dialogMull1.scale.setTo(0.5, 0.5);
+	faceImbiss.scale.setTo(0.7, 0.7);
+
+	// state == 2
+	dialogBestellung = game.add.sprite(750, 0, 'dialog-bestellung');
+	faceBestellung = game.add.sprite(500, 250, 'face-bestellung');
+	faceBestellung.scale.setTo(0.7, 0.7);
+	dialogBestellung.scale.setTo(0.5, 0.5);
 
 	// state == 3
-	dialogBestellung = game.add.sprite(200, 0, 'dialog-bestellung');
-	faceBestellung = game.add.sprite(50, 600, 'face-bestellung');
+	dialogDurchbruch = game.add.sprite(600, 150, 'dialog-durchbruch');
+	dialogDurchbruch.scale.setTo(0.5, 0.5);
 
 	// Make a loop to update elif's life
 	game.time.events.loop(Phaser.Timer.SECOND, updateLife, this);
 
-	lifeText = game.add.text(1280 / 2, 10, "Life: " + life, style);
+	lifeText = game.add.text(100, 10, "Power: " + life, style);
 
 	game.state.add('gameover', { preload: preloadgameover, create: creategameover, update: updategameover });
 	game.state.add('minigame1', { preload: preloadMinigame1, create: createMinigame1, update: updateMinigame1 });
+	game.state.add('happyend', { preload: preloadhappyend, create: createhappyend, update: updatehappyend });
+}
+
+
+var happyend;
+
+function preloadhappyend() {
+	game.load.image('happyend', 'assets/sprites/happyend.png');
+}
+
+function createhappyend() {
+	happyend = game.add.sprite(0, 0, 'happyend');
+}
+
+function updatehappyend() {
+	
+
 }
 
 function preloadgameover() {
@@ -347,13 +399,20 @@ function update() {
 		faceImbiss.renderable = false;
 	}
 
-	if(state == 3) {
+	if(state == 2) {
 		dialogBestellung.renderable = true;
 		faceBestellung.renderable = true;
 
 	} else {
 		dialogBestellung.renderable = false;
 		faceBestellung.renderable = false;
+	}
+
+	if(state == 3) {
+		// Ausbruch (?)
+		dialogDurchbruch.renderable = true;
+	} else {
+		dialogDurchbruch.renderable = false;
 	}
 
 }
