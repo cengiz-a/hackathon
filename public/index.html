@@ -47,7 +47,10 @@ var jaodernein;
 
 var dialogDurchbruch;
 var cityAusbruch;
+var dialogNichtstark;
 
+var mainBg;
+var gameoverBg;
 
 var minigame1bg;
 
@@ -201,7 +204,7 @@ function updateBackground() {
 		return;
 	}
 
-	if(cursor.left.isDown) {
+	if(cursor.left.isDown && tiledCity.tilePosition.x < 0) {
 		// Move left
 		tiledCity.tilePosition.x += 8;
 	} else if(cursor.right.isDown) {
@@ -258,7 +261,8 @@ function updateElephant() {
 			// start minigame 1
 			mainBgScrollSave = tiledCity.tilePosition.x;
 			game.state.start('minigame1');
-		} else if(state == 3 && tiledElephant.renderable == true && life > 50) {
+			mainBg.stop();
+		} else if(state == 3 && tiledElephant.renderable == true && life > 90) {
 			// Ausbruch
 			tiledElephant.renderable = false;
 			tiledCity.setTexture(cityAusbruch.texture);
@@ -269,6 +273,7 @@ function updateElephant() {
 
 function happyend() {
 	game.state.start('happyend');
+	mainBg.stop();
 }
 
 function preload() {
@@ -285,6 +290,10 @@ function preload() {
 	game.load.image('face-imbiss', 'assets/sprites/face-imbiss.png');
 	game.load.image('dialog-durchbruch', 'assets/sprites/dialog-durchbruch.png');
 	game.load.image('city-ausbruch', 'assets/sprites/city-ausbruch.png');
+
+	game.load.image('dialog-nichtstark', 'assets/sprites/dialog-nichtstark.png');
+
+	game.load.audio('mainBg', 'assets/sounds/ANW2337_05_Mesopotamia.mp3');
 }
 
 function create() {
@@ -297,7 +306,9 @@ function create() {
 		'space': Phaser.KeyCode.SPACEBAR,
 		'y': Phaser.KeyCode.Y });
 
-	//console.log(game.sound)
+	mainBg = game.add.audio('mainBg');
+	mainBg.play();
+
 	// state == 3
 	cityAusbruch = game.add.tileSprite(0, 0, 1280, 960, 'city-ausbruch');
 
@@ -326,6 +337,9 @@ function create() {
 	dialogDurchbruch = game.add.sprite(600, 150, 'dialog-durchbruch');
 	dialogDurchbruch.scale.setTo(0.5, 0.5);
 
+	dialogNichtstark = game.add.sprite(600, 150, 'dialog-nichtstark');
+	dialogNichtstark.scale.setTo(0.5, 0.5);
+
 	// Make a loop to update elif's life
 	game.time.events.loop(Phaser.Timer.SECOND, updateLife, this);
 
@@ -340,16 +354,18 @@ function create() {
 var happyend;
 
 function preloadhappyend() {
+	game.load.audio('happyendBg', 'assets/sounds/ANW2497_02_While-The-City-Sleeps.mp3');
 	game.load.image('happyend', 'assets/sprites/happyend.png');
 }
 
 function createhappyend() {
 	happyend = game.add.sprite(0, 0, 'happyend');
+	happyendBg = game.add.audio('happyendBg');
+	happyendBg.play();
 }
 
 function updatehappyend() {
 	
-
 }
 
 var gameover;
@@ -364,13 +380,12 @@ function creategameover() {
 
 function updategameover() {
 	
-
 }
 
 function updateLife() {
 
 	if(state != 0) {
-		life -= 10;
+		life -= 2;
 	}
 	
 	lifeText.setText("Power: " + life);
@@ -411,11 +426,18 @@ function update() {
 
 	if(state == 3) {
 		// Ausbruch (?)
-		dialogDurchbruch.renderable = true;
+		if(life > 90) {
+			dialogDurchbruch.renderable = true;
+			dialogNichtstark.renderable = false;
+		} else {
+			dialogNichtstark.renderable = true;
+			dialogDurchbruch.renderable = false;
+		}
+		
 	} else {
 		dialogDurchbruch.renderable = false;
+		dialogNichtstark.renderable = false;
 	}
-
 }
 
 </script>
