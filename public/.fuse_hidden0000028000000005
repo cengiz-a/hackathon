@@ -85,7 +85,6 @@ function preloadMinigame1() {
 
 	game.load.image('elephant', 'assets/sprites/elephant.png');
 
-	state = -1;
 	//minigame1CollisionRects.push(new Phaser.Rectangle(0, 0, 10, 10));
 }
 
@@ -357,7 +356,6 @@ var happyend;
 function preloadhappyend() {
 	game.load.audio('happyendBg', 'assets/sounds/ANW2497_02_While-The-City-Sleeps.mp3');
 	game.load.image('happyend', 'assets/sprites/happyend.png');
-	state = -1;
 }
 
 function createhappyend() {
@@ -374,7 +372,6 @@ var gameover;
 
 function preloadgameover() {
 	game.load.image('gameover', 'assets/sprites/gameover.png');
-	state = -1;
 }
 
 function creategameover() {
@@ -387,7 +384,7 @@ function updategameover() {
 
 function updateLife() {
 
-	if(state == -1) {
+	if(state != 0) {
 		life -= 2;
 	}
 	
