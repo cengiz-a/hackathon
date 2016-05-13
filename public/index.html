@@ -39,8 +39,13 @@ var jaodernein;
 
 var minigame1bg;
 
+
+var minigame1CollisionRects = [];
+
 function preloadMinigame1() {
-	game.load.image('mull-bg', 'assets/sprites/minigame2-bg.png');
+	game.load.image('minigame2-bg', 'assets/sprites/minigame2-bg.png');
+
+	minigame1CollisionRects.push(new Phaser.Rectangle(0, 0, 10, 10));
 }
 
 function createMinigame1() {
@@ -48,12 +53,20 @@ function createMinigame1() {
 }
 
 function updateMinigame1() {
-	//console.log('yooo3');
+	// check for collision
+
+
 }
 
 
 
 function updateBackground() {
+
+	if(state == 0) {
+		// Do nothing until skipped start dialogue
+		return;
+	}
+
 	if(cursor.left.isDown) {
 		// Move left
 		tiledCity.tilePosition.x += 8;
@@ -69,10 +82,10 @@ function updateBackground() {
 		state = 3;
 
 	} else if(rectStage3.contains(tiledCity.tilePosition.x, tiledCity.tilePosition.y)) {
-		game.state.start('minigame1');
+		
 
 	} else if(rectStage4.contains(tiledCity.tilePosition.x, tiledCity.tilePosition.y)) {
-		console.log("level4");
+		//console.log("level4");
 
 	} else {
 		if(state != 0) {
@@ -82,6 +95,7 @@ function updateBackground() {
 }
 
 function updateElephant() {
+
 	if(cursor.left.isDown) {
 		// Move left
 		count += 10;
@@ -102,11 +116,13 @@ function updateElephant() {
 		if(state == 0) {
 			state = -1;
 		}
+	}
 
+	if(cursor.y.isDown) {
 		if(state == 1) {
-			state = 2;
+			// start minigame 1
+			game.state.start('minigame1');
 		}
-
 	}
 }
 
@@ -122,7 +138,6 @@ function preload() {
 	game.load.image('mull2', 'assets/sprites/mull2.png');
 	game.load.image('face-bestellung', 'assets/sprites/face-bestellung.png');
 	game.load.image('face-imbiss', 'assets/sprites/face-imbiss.png');
-	game.load.image('jaodernein', 'assets/sprites/jaodernein.png');
 }
 
 function create() {
@@ -132,7 +147,8 @@ function create() {
 		'down': Phaser.KeyCode.DOWN, 
 		'left': Phaser.KeyCode.LEFT, 
 		'right': Phaser.KeyCode.RIGHT, 
-		'space': Phaser.KeyCode.SPACEBAR });
+		'space': Phaser.KeyCode.SPACEBAR,
+		'y': Phaser.KeyCode.Y });
 
 	// Make it tiled
 	tiledCity = game.add.tileSprite(0, 0, 1280, 960, 'background');
@@ -149,9 +165,6 @@ function create() {
 	dialogBestellung = game.add.sprite(200, 0, 'dialog-bestellung');
 	faceBestellung = game.add.sprite(50, 600, 'face-bestellung');
 
-	// Other
-	jaodernein = game.add.sprite(700, 500, 'jaodernein');
-
 	// Make a loop to update elif's life
 	game.time.events.loop(Phaser.Timer.SECOND, updateLife, this);
 
@@ -166,18 +179,18 @@ function preloadgameover() {
 }
 
 function creategameover() {
-	console.log('yooo2');
+	//console.log('yooo2');
 }
 
 function updategameover() {
-	console.log('yooo3');
+	//console.log('yooo3');
 
 }
 
 function updateLife() {
 
-	if(state > 0) {
-		life-=10;
+	if(state != 0) {
+		life -= 10;
 	}
 	
 	lifeText.setText("Life: " + life);
@@ -201,24 +214,19 @@ function update() {
 	if(state == 1) {
 		dialogMull1.renderable = true;
 		faceImbiss.renderable = true;
-		jaodernein.renderable = true;
-
 	} else {
 		dialogMull1.renderable = false;
 		faceImbiss.renderable = false;
-		jaodernein.renderable = false;
 	}
 
 	if(state == 3) {
 		dialogBestellung.renderable = true;
 		faceBestellung.renderable = true;
-		jaodernein.renderable = true;
+
 	} else {
 		dialogBestellung.renderable = false;
 		faceBestellung.renderable = false;
-		jaodernein.renderable = false;
 	}
-
 
 }
 
