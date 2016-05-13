@@ -8,6 +8,11 @@
 <script>
 var game = new Phaser.Game(1280, 960, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
+var startX = 300;
+var startY = 500;
+
+var mainBgScrollSave = 0;
+
 var cursor;
 var tiledElephant;
 var tiledCity;
@@ -39,29 +44,151 @@ var jaodernein;
 
 var minigame1bg;
 
+var mullTile1;
+var mullTile2;
 
-var minigame1CollisionRects = [];
+var minigame2CollisionRects = [];
+
+var isJumping = false;
+var jumpHeight = 500;
+var jumped = 0;
+var jumpIteration = 25;
+var spaceDown = false;
+
+var mullRect1;
+var mullRect2;
+
+var hitMul1 = false;
+var hitMul2 = false;
+
+var stateMul1 = 0;
+var stateMul2 = 0;
+
+var minigame1Rect;
 
 function preloadMinigame1() {
-	game.load.image('minigame2-bg', 'assets/sprites/minigame2-bg.png');
+	game.load.image('minigame-1-bg', 'assets/sprites/minigame-1-bg.png');
 
-	minigame1CollisionRects.push(new Phaser.Rectangle(0, 0, 10, 10));
+	game.load.image('mull1', 'assets/sprites/mull1.png');
+
+	game.load.image('mull2', 'assets/sprites/mull2.png');
+
+	game.load.image('elephant', 'assets/sprites/elephant.png');
+
+	//minigame1CollisionRects.push(new Phaser.Rectangle(0, 0, 10, 10));
 }
 
 function createMinigame1() {
-	minigame1bg = game.add.sprite(0, 0, 'minigame2-bg');
+	minigame1bg = game.add.sprite(0, 0, 'minigame-1-bg');
+
+	mullTile1 = game.add.tileSprite(700, 400, 829, 717, 'mull1');
+	mullTile1.scale.setTo(0.5, 0.5);
+	mullRect1 = new Phaser.Rectangle(mullTile1.left, mullTile1.top, mullTile1.right - mullTile1.left, mullTile1.bottom - mullTile1.top);
+
+	mullTile2 = game.add.tileSprite(200, 400, 834, 804, 'mull2');
+	mullTile2.scale.setTo(0.5, 0.5);
+	mullRect2 = new Phaser.Rectangle(mullTile2.left, mullTile2.top, mullTile2.right - mullTile2.left, mullTile2.bottom - mullTile2.top);
+
+	cursor = game.input.keyboard.addKeys({ 
+		'up': Phaser.KeyCode.UP, 
+		'down': Phaser.KeyCode.DOWN, 
+		'left': Phaser.KeyCode.LEFT, 
+		'right': Phaser.KeyCode.RIGHT, 
+		'space': Phaser.KeyCode.SPACEBAR });
+
+	tiledElephant = game.add.tileSprite(300, 500, 250, 210, 'elephant');
+	tiledElephant.scale.setTo(1.7, 1.7);
+
+	minigame1Rect = new Phaser.Rectangle(0, 0, game.width, game.height);
+
+	stateMul1 = 0;
+	stateMul2 = 0;
+
+	lifeText = game.add.text(1280 / 2, 10, "Power: " + life, style);
+	game.time.events.loop(Phaser.Timer.SECOND, updateLife, this);
 }
 
 function updateMinigame1() {
+
+
 	// check for collision
+	if(cursor.left.isDown) {
+		// Move left
+		tiledElephant.x -= 10;
+
+		count += 10;
+		if(count >= 100) {
+			tiledElephant.tilePosition.x -= 251;
+			count = 0;
+		}
+	} else if(cursor.right.isDown) {
+		// Move right
+		tiledElephant.x += 10;
+
+		count += 10;
+		if(count >= 100) {
+			tiledElephant.tilePosition.x += 251;	
+			count = 0;
+		}
+	}
+
+	if(cursor.space.isDown) {
+		// Move left
+		spaceDown = true;
+		
+	}
+
+	if(cursor.space.isUp && spaceDown && isJumping == false && jumped == 0) {
+		isJumping = true;
+		spaceDown = false;
+		hitMul1 = false;
+		hitMul2 = false;
+	}
+
+	if(isJumping) {
+		if(jumped < jumpHeight) {
+			tiledElephant.y -= jumpIteration;
+			jumped += jumpIteration;
+		}
+
+		if(jumped >= jumpHeight) {
+			isJumping = false;
+		}
+	} else {
+		if(jumped > 0) {
+			tiledElephant.y += jumpIteration;
+			jumped -= jumpIteration;
 
 
+			// Is falling down, check for muuull
+			if(hitMul1 == false && mullRect1.containsRect(tiledElephant.getBounds()) && stateMul1 < 2) {
+				mullTile1.tilePosition.x -= 829;
+				hitMul1 = true;
+				stateMul1++;
+			}
+
+			if(hitMul2 == false && mullRect2.containsRect(tiledElephant.getBounds()) && stateMul2  < 2) {
+				mullTile2.tilePosition.x -= 834;
+				hitMul2 = true;
+				stateMul2++;
+			}
+		}
+	}
+
+
+	// Check if outside screen
+	if(!minigame1Rect.containsRect(tiledElephant.getBounds())) {
+		if(stateMul1 == 2 && stateMul2 == 2) {
+			life = 100;
+		}
+
+		game.state.start('default');
+	}
 }
 
 
 
 function updateBackground() {
-
 	if(state == 0) {
 		// Do nothing until skipped start dialogue
 		return;
@@ -86,7 +213,6 @@ function updateBackground() {
 
 	} else if(rectStage4.contains(tiledCity.tilePosition.x, tiledCity.tilePosition.y)) {
 		//console.log("level4");
-
 	} else {
 		if(state != 0) {
 			state = -1;
@@ -121,6 +247,7 @@ function updateElephant() {
 	if(cursor.y.isDown) {
 		if(state == 1) {
 			// start minigame 1
+			mainBgScrollSave = tiledCity.tilePosition.x;
 			game.state.start('minigame1');
 		}
 	}
@@ -152,7 +279,8 @@ function create() {
 
 	// Make it tiled
 	tiledCity = game.add.tileSprite(0, 0, 1280, 960, 'background');
-	tiledElephant = game.add.tileSprite(300, 500, 250, 210, 'elephant');
+	tiledCity.tilePosition.x += mainBgScrollSave;
+	tiledElephant = game.add.tileSprite(startX, startY, 250, 210, 'elephant');
 
 	// state == 0
 	dialog = game.add.sprite(100, 100, 'dialog');
@@ -179,11 +307,11 @@ function preloadgameover() {
 }
 
 function creategameover() {
-	//console.log('yooo2');
+	
 }
 
 function updategameover() {
-	//console.log('yooo3');
+	
 
 }
 
@@ -193,7 +321,7 @@ function updateLife() {
 		life -= 10;
 	}
 	
-	lifeText.setText("Life: " + life);
+	lifeText.setText("Power: " + life);
 	if(life <= 0) {
 		// Elif ist tod :(
 		lifeText.setText("You died, biatch");
