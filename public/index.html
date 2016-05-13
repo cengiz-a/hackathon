@@ -8,6 +8,9 @@
 <script>
 var game = new Phaser.Game(1280, 960, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
+var maxLife = 30;
+var durchbruchPower = 22;
+
 var startX = 300;
 var startY = 500;
 
@@ -18,7 +21,7 @@ var tiledElephant;
 var tiledCity;
 
 var count = 0;
-var life = 100;
+var life = maxLife;
 
 var lifeDecreaseTimer;
 
@@ -190,7 +193,7 @@ function updateMinigame1() {
 	// Check if outside screen
 	if(!minigame1Rect.containsRect(tiledElephant.getBounds())) {
 		if(stateMul1 == 2 && stateMul2 == 2) {
-			life = 100;
+			life = maxLife;
 		}
 
 		game.state.start('default');
@@ -263,7 +266,7 @@ function updateElephant() {
 			mainBgScrollSave = tiledCity.tilePosition.x;
 			game.state.start('minigame1');
 			mainBg.stop();
-		} else if(state == 3 && tiledElephant.renderable == true && life > 90) {
+		} else if(state == 3 && tiledElephant.renderable == true && life > durchbruchPower) {
 			// Ausbruch
 			tiledElephant.renderable = false;
 			tiledCity.setTexture(cityAusbruch.texture);
@@ -429,7 +432,7 @@ function update() {
 
 	if(state == 3) {
 		// Ausbruch (?)
-		if(life > 90) {
+		if(life > durchbruchPower) {
 			dialogDurchbruch.renderable = true;
 			dialogNichtstark.renderable = false;
 		} else {
